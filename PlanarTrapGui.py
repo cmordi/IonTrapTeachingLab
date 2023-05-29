@@ -34,4 +34,4 @@ button4.pack(pady=10)
 # Start the tkinter main loop
 window.mainloop()
 
-# Close the serial port when the window is closed
+
