@@ -1,35 +1,86 @@
 import tkinter as tk
 
 
-def command1():
-    # Send command '1' over the serial port
-    pass
-
-def command2():
-    # Send command '2' over the serial port
-    pass
-
-def command3():
-    # Send command '3' over the serial port
-    pass
-
-def command4():
-    # Send command '4' over the serial port
-    pass
 # Create a new tkinter window
 window = tk.Tk()
 
-# Create four buttons and assign each to a different command
-button1 = tk.Button(window, text="Button 1", command=command1)
-button2 = tk.Button(window, text="Button 2", command=command2)
-button3 = tk.Button(window, text="Button 3", command=command3)
-button4 = tk.Button(window, text="Button 4", command=command4)
+frame = tk.Frame()
+frame.pack(side=tk.LEFT, fill=tk.BOTH, expand=True)
 
-# Place the buttons in the window with padding
-button1.pack(pady=10)
-button2.pack(pady=10)
-button3.pack(pady=10)
-button4.pack(pady=10)
+row = 0
+bold_font = ('Helvetica', 16, 'bold')
+tk.Label(frame, text="Main Planar Modes", font=bold_font).grid(row=row, column=1, pady=10)
+
+row += 1
+label_font = ('Helvetica', 12)
+tk.Label(frame, text="All Off", font=label_font).grid(row=row, column=0)
+checkbutton_var = tk.BooleanVar()
+checkbutton = tk.Checkbutton(frame, variable=checkbutton_var)
+checkbutton.grid(row=row, column=1)
+
+row += 1
+label_font = ('Helvetica', 12)
+tk.Label(frame, text="All Low", font=label_font).grid(row=row, column=0)
+checkbutton_var = tk.BooleanVar()
+checkbutton = tk.Checkbutton(frame, variable=checkbutton_var)
+checkbutton.grid(row=row, column=1)
+
+row += 1
+label_font = ('Helvetica', 12)
+tk.Label(frame, text="All High", font=label_font).grid(row=row, column=0)
+checkbutton_var = tk.BooleanVar()
+checkbutton = tk.Checkbutton(frame, variable=checkbutton_var)
+checkbutton.grid(row=row, column=1)
+
+row += 1
+bold_font = ('Helvetica', 16, 'bold')
+tk.Label(frame, text="Electrode Set A", font=bold_font).grid(row=row, column=1, pady=10)
+
+row += 1
+label_font = ('Helvetica', 12)
+tk.Label(frame, text="Off", font=label_font).grid(row=row, column=0)
+checkbutton_var = tk.BooleanVar()
+checkbutton = tk.Checkbutton(frame, variable=checkbutton_var)
+checkbutton.grid(row=row, column=1)
+
+row += 1
+label_font = ('Helvetica', 12)
+tk.Label(frame, text="Low", font=label_font).grid(row=row, column=0)
+checkbutton_var = tk.BooleanVar()
+checkbutton = tk.Checkbutton(frame, variable=checkbutton_var)
+checkbutton.grid(row=row, column=1)
+
+row += 1
+label_font = ('Helvetica', 12)
+tk.Label(frame, text="High", font=label_font).grid(row=row, column=0)
+checkbutton_var = tk.BooleanVar()
+checkbutton = tk.Checkbutton(frame, variable=checkbutton_var)
+checkbutton.grid(row=row, column=1)
+
+row += 1
+bold_font = ('Helvetica', 16, 'bold')
+tk.Label(frame, text="Electrode Set B", font=bold_font).grid(row=row, column=1, pady=10)
+
+row += 1
+label_font = ('Helvetica', 12)
+tk.Label(frame, text="Off", font=label_font).grid(row=row, column=0)
+checkbutton_var = tk.BooleanVar()
+checkbutton = tk.Checkbutton(frame, variable=checkbutton_var)
+checkbutton.grid(row=row, column=1)
+
+row += 1
+label_font = ('Helvetica', 12)
+tk.Label(frame, text="Low", font=label_font).grid(row=row, column=0)
+checkbutton_var = tk.BooleanVar()
+checkbutton = tk.Checkbutton(frame, variable=checkbutton_var)
+checkbutton.grid(row=row, column=1)
+
+row += 1
+label_font = ('Helvetica', 12)
+tk.Label(frame, text="High", font=label_font).grid(row=row, column=0)
+checkbutton_var = tk.BooleanVar()
+checkbutton = tk.Checkbutton(frame, variable=checkbutton_var)
+checkbutton.grid(row=row, column=1)
 
 # Start the tkinter main loop
 window.mainloop()
