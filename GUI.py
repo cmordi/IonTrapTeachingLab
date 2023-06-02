@@ -1,13 +1,14 @@
 import tkinter as tk
 
 
+# Allows mutual exclusivity of specified checkboxes
 def toggle_checkboxes(checkboxes, mutually_exclusive_checkboxes, current_checkbox):
     if current_checkbox.get():
         for checkbox in mutually_exclusive_checkboxes:
             if checkbox != current_checkbox:
                 checkbox.set(False)
 
-
+# Creates checkboxes in grid and fills a list of all checkboxes
 def create_checkbox(window, text, mutually_exclusive_checkboxes, row):
     checkbox_var = tk.BooleanVar()
     checkbox = tk.Checkbutton(window, text=text, variable=checkbox_var,
@@ -16,14 +17,14 @@ def create_checkbox(window, text, mutually_exclusive_checkboxes, row):
     checkboxes.append(checkbox_var)
     return checkbox_var
 
+checkboxes = []
+
 
 # Create a new tkinter window
 window = tk.Tk()
 frame = tk.Frame(window)
 frame.grid(row=0, column=0, padx=10, pady=10)
 
-
-checkboxes = []
 
 # All Electrodes
 row = 0
