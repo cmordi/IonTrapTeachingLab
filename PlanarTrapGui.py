@@ -7,11 +7,9 @@ window = tk.Tk()
 frame = tk.Frame()
 frame.pack(side=tk.LEFT, fill=tk.BOTH, expand=True)
 
-#TODO: need to add a button to link to the serial port
-
 ser = ser.Serial('COM3', 9600)
 
-# Create a group of radio buttons for "All Electrodes"
+# "All Electrodes"
 row = 0
 bold_font = ('Helvetica', 16, 'bold')
 tk.Label(frame, text="All Electrodes:", font=bold_font).grid(row=row, column=0, pady=10)
@@ -36,7 +34,7 @@ tk.Label(frame, text="All High", font=label_font).grid(row=row, column=0)
 radio_button_all_high = tk.Radiobutton(frame, variable=radio_var_all, value="high")
 radio_button_all_high.grid(row=row, column=1)
 
-# Create a group of radio buttons for "Electrode Set 'a'"
+#"Electrode Set 'a'"
 row += 1
 bold_font = ('Helvetica', 16, 'bold')
 tk.Label(frame, text="Electrode Set 'a':", font=bold_font).grid(row=row, column=0, pady=10)
@@ -61,7 +59,7 @@ tk.Label(frame, text="High", font=label_font).grid(row=row, column=0)
 radio_button_set_a_high = tk.Radiobutton(frame, variable=radio_var_set_a, value="high")
 radio_button_set_a_high.grid(row=row, column=1)
 
-# Create a group of radio buttons for "Electrode Set 'b'"
+#"Electrode Set 'b'"
 row += 1
 bold_font = ('Helvetica', 16, 'bold')
 tk.Label(frame, text="Electrode Set 'b':", font=bold_font).grid(row=row, column=0, pady=10)
@@ -86,7 +84,7 @@ tk.Label(frame, text="High", font=label_font).grid(row=row, column=0)
 radio_button_set_b_high = tk.Radiobutton(frame, variable=radio_var_set_b, value="high")
 radio_button_set_b_high.grid(row=row, column=1)
 
-# Create a group of radio buttons for "Electrode Set 'c'"
+# "Electrode Set 'c'"
 row += 1
 bold_font = ('Helvetica', 16, 'bold')
 tk.Label(frame, text="Electrode Set 'c':", font=bold_font).grid(row=row, column=0, pady=10)
@@ -111,7 +109,7 @@ tk.Label(frame, text="High", font=label_font).grid(row=row, column=0)
 radio_button_set_c_high = tk.Radiobutton(frame, variable=radio_var_set_c, value="high")
 radio_button_set_c_high.grid(row=row, column=1)
 
-# Create a group of radio buttons for "Electrode Set 'd'"
+#"Electrode Set 'd'"
 row += 1
 bold_font = ('Helvetica', 16, 'bold')
 tk.Label(frame, text="Electrode Set 'd':", font=bold_font).grid(row=row, column=0, pady=10)
@@ -136,7 +134,7 @@ tk.Label(frame, text="High", font=label_font).grid(row=row, column=0)
 radio_button_set_d_high = tk.Radiobutton(frame, variable=radio_var_set_d, value="high")
 radio_button_set_d_high.grid(row=row, column=1)
 
-# Create a group of radio buttons for "Electrode Set 'e'"
+# "Electrode Set 'e'"
 row += 1
 bold_font = ('Helvetica', 16, 'bold')
 tk.Label(frame, text="Electrode Set 'e':", font=bold_font).grid(row=row, column=0, pady=10)
