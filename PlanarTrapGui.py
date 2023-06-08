@@ -1,14 +1,15 @@
 import tkinter as tk
-import serial
+import serial as ser 
 
 # Create a new tkinter window
 window = tk.Tk()
 
-ser = serial.Serial('COM3', 9600)
-ser.flushInput()
-
 frame = tk.Frame()
 frame.pack(side=tk.LEFT, fill=tk.BOTH, expand=True)
+
+#TODO: need to add a button to link to the serial port
+
+ser = ser.Serial('COM3', 9600)
 
 # Create a group of radio buttons for "All Electrodes"
 row = 0
@@ -159,6 +160,41 @@ label_font = ('Helvetica', 12)
 tk.Label(frame, text="High", font=label_font).grid(row=row, column=0)
 radio_button_set_e_high = tk.Radiobutton(frame, variable=radio_var_set_e, value="high")
 radio_button_set_e_high.grid(row=row, column=1)
+
+def submit():
+    all_choice = radio_var_all.get()
+    if all_choice:
+        ser.write(("all " + all_choice + "\n").encode())
+
+    a_choice = radio_var_set_a.get()
+    if a_choice:
+        ser.write(("a " + a_choice + "\n").encode())
+
+    b_choice = radio_var_set_b.get()
+    if b_choice:
+        ser.write(("b " + b_choice + "\n").encode())
+
+    c_choice = radio_var_set_c.get()
+    if c_choice:
+        ser.write(("c " + c_choice + "\n").encode())
+
+    d_choice = radio_var_set_d.get()
+    if d_choice:
+        ser.write(("d " + d_choice + "\n").encode())
+
+    e_choice = radio_var_set_e.get()
+    if e_choice:
+        ser.write(("e " + e_choice + "\n").encode())
+
+
+submit_button = tk.Button(frame, text="Submit", command=submit)
+submit_button.grid(row=row+1, column=0, columnspan=2, pady=10, sticky=tk.W)
+
+def on_close():
+    ser.close()  # close the serial connection
+    window.destroy()  # destroy the window
+
+window.protocol("WM_DELETE_WINDOW", on_close)
 
 # Start the tkinter main loop
 window.mainloop()
