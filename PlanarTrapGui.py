@@ -1,7 +1,11 @@
 import tkinter as tk
+import serial
 
 # Create a new tkinter window
 window = tk.Tk()
+
+ser = serial.Serial('COM3', 9600)
+ser.flushInput()
 
 frame = tk.Frame()
 frame.pack(side=tk.LEFT, fill=tk.BOTH, expand=True)
