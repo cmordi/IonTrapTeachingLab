@@ -1,15 +1,47 @@
 import tkinter as tk
+import serial
+
+# Serial setup
+serial_port = 'COM3'
+baud_rate = 9600
+
+# Arduino pin config
+pin_a_high = 30
+pin_a_low = 31
+pin_b_high = 28
+pin_b_low = 29
+pin_c_high = 26
+pin_c_low = 27
+pin_d_high = 24
+pin_d_low = 25
+pin_e_high = 22
+pin_e_low = 23
 
 
-# Allows mutual exclusivity of specified checkboxes
+# Useful functions
+def update_pin_state(checkbox_var):
+    '''Function to update the state of the Arduino pin'''
+    try:
+        # Open the serial connection to the Arduino
+        arduino = serial.Serial(serial_port, baud_rate)
+
+        # Write the pin state to the Arduino
+        pin_state = int(checkbox_var.get())
+        arduino.write(b's' + str(pin_state).encode())
+
+        arduino.close()  # Close the serial connection
+    except serial.SerialException:
+        print("Serial port connection error.")
+
 def toggle_checkboxes(checkboxes, mutually_exclusive_checkboxes, current_checkbox):
+    '''Allows mutual exclusivity of specified checkboxes'''
     if current_checkbox.get():
         for checkbox in mutually_exclusive_checkboxes:
             if checkbox != current_checkbox:
                 checkbox.set(False)
 
-# Creates checkboxes in grid and fills a list of all checkboxes
 def create_checkbox(window, text, mutually_exclusive_checkboxes, row):
+    '''Creates checkboxes in grid and fills a list of all checkboxes'''
     checkbox_var = tk.BooleanVar()
     checkbox = tk.Checkbutton(window, text=text, variable=checkbox_var,
                               command=lambda: toggle_checkboxes(checkboxes, mutually_exclusive_checkboxes, checkbox_var))
