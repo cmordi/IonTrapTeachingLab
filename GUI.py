@@ -18,6 +18,10 @@ pin_e_high = 22
 pin_e_low = 23
 
 
+# Keep track of changes
+changes_made = False
+
+
 # Useful functions
 def update_pin_state(checkbox_var):
     '''Function to update the state of the Arduino pin'''
@@ -39,6 +43,11 @@ def toggle_checkboxes(checkboxes, mutually_exclusive_checkboxes, current_checkbo
         for checkbox in mutually_exclusive_checkboxes:
             if checkbox != current_checkbox:
                 checkbox.set(False)
+
+def apply_changes():
+    '''Applies changes'''
+    global changes_made
+    changes_made = True
 
 def create_checkbox(window, text, mutually_exclusive_checkboxes, row):
     '''Creates checkboxes in grid and fills a list of all checkboxes'''
@@ -189,6 +198,12 @@ row += 1
 label_font = ('Helvetica', 12)
 e_off_var = create_checkbox(frame, "Off", e_mutex, row)
 e_mutex.append(e_off_var)
+
+
+# Apply Button
+row += 1
+apply_button = tk.Button(frame, text="Apply", command=apply_changes)
+apply_button.grid(row=row, column=2, pady=10)
 
 
 # Start tkinter main loop
