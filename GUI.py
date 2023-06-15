@@ -1,5 +1,7 @@
 import tkinter as tk
+import time
 import serial
+import threading
 
 # Serial setup
 serial_port = 'COM3'
@@ -20,22 +22,76 @@ pin_e_low = 23
 
 # Keep track of changes
 changes_made = False
+# Serial connection status
+is_connected = False
+# Create Serial object for reading and writing
+arduino = None
+
+
+# Create a separate thread for reading from the serial port
+def read_serial():
+    '''Function to continuously read from the serial port'''
+    global arduino
+    arduino = serial.Serial(serial_port, baud_rate)
+    while True:
+        if arduino.in_waiting > 0:
+            serial_data = arduino.readline().decode().strip()
+            print(serial_data)
+
+serial_thread = threading.Thread(target=read_serial)
+serial_thread.daemon = True
+serial_thread.start()
 
 
 # Useful functions
-def update_pin_state(checkbox_var):
-    '''Function to update the state of the Arduino pin'''
+def connect_arduino():
+    '''Establishes a serial connection with the Arduino'''
+    global is_connected, arduino
     try:
-        # Open the serial connection to the Arduino
         arduino = serial.Serial(serial_port, baud_rate)
+        arduino.close()
+        time.sleep(2)  # Add a delay to allow the Arduino to reset
+        arduino.open()  # Reopen the serial connection
+        is_connected = True
+        print("Serial connection established.")
+    except serial.SerialException as e:
+        print("Serial port connection error:", e)
 
-        # Write the pin state to the Arduino
-        pin_state = int(checkbox_var.get())
-        arduino.write(b's' + str(pin_state).encode())
+def input_command(checkboxes, checkbox_names):
+    '''Function to send serial input to Arduino'''
+    global changes_made, is_connected, arduino
+    if changes_made:
+        if not is_connected:
+            connect_arduino()
+            if not is_connected:
+                print("Cannot send command. Serial connection not established.")
+                return
 
-        arduino.close()  # Close the serial connection
-    except serial.SerialException:
-        print("Serial port connection error.")
+        try:
+            for checkbox_var, name in zip(checkboxes, checkbox_names):
+                if checkbox_var.get():
+                    print(f"Sending command: {name}")
+                    arduino.write(f'{name}'.encode())
+            changes_made = False
+        except serial.SerialException:
+            print("Serial port connection error.")
+
+def apply_changes():
+    '''Applies the configuration of checkboxes at the time of clicking the button'''
+    global changes_made
+    changes_made = True
+    input_command(checkboxes, checkbox_names)
+
+def create_checkbox(window, text, name, mutually_exclusive_checkboxes, row):
+    '''Creates checkboxes in grid and fills a list of all checkboxes'''
+    checkbox_var = tk.BooleanVar()
+    checkbox = tk.Checkbutton(window, text=text, variable=checkbox_var,
+                              command=lambda: toggle_checkboxes(checkboxes, mutually_exclusive_checkboxes,
+                                                               checkbox_var))
+    checkbox.grid(row=row, column=1, sticky='w')
+    checkboxes.append(checkbox_var)
+    checkbox_names.append(name)
+    return checkbox_var
 
 def toggle_checkboxes(checkboxes, mutually_exclusive_checkboxes, current_checkbox):
     '''Allows mutual exclusivity of specified checkboxes'''
@@ -44,21 +100,8 @@ def toggle_checkboxes(checkboxes, mutually_exclusive_checkboxes, current_checkbo
             if checkbox != current_checkbox:
                 checkbox.set(False)
 
-def apply_changes():
-    '''Applies changes'''
-    global changes_made
-    changes_made = True
-
-def create_checkbox(window, text, mutually_exclusive_checkboxes, row):
-    '''Creates checkboxes in grid and fills a list of all checkboxes'''
-    checkbox_var = tk.BooleanVar()
-    checkbox = tk.Checkbutton(window, text=text, variable=checkbox_var,
-                              command=lambda: toggle_checkboxes(checkboxes, mutually_exclusive_checkboxes, checkbox_var))
-    checkbox.grid(row=row, column=1, sticky='w')
-    checkboxes.append(checkbox_var)
-    return checkbox_var
-
 checkboxes = []
+checkbox_names = []
 
 
 # Create a new tkinter window
@@ -74,15 +117,15 @@ tk.Label(frame, text="All Electrodes:", font=bold_font).grid(row=row, column=0, 
 
 row += 1
 label_font = ('Helvetica', 12)
-all_high_var = create_checkbox(frame, "All High", checkboxes, row)
+all_high_var = create_checkbox(frame, "All High", "all high", checkboxes, row)
 
 row += 1
 label_font = ('Helvetica', 12)
-all_low_var = create_checkbox(frame, "All Low", checkboxes, row)
+all_low_var = create_checkbox(frame, "All Low", "all low", checkboxes, row)
 
 row += 1
 label_font = ('Helvetica', 12)
-all_off_var = create_checkbox(frame, "All Off", checkboxes, row)
+all_off_var = create_checkbox(frame, "All Off", "all off", checkboxes, row)
 
 
 # Electrode Set 'a'
@@ -94,17 +137,17 @@ tk.Label(frame, text="Electrode Set 'a':", font=bold_font).grid(row=row, column=
 
 row += 1
 label_font = ('Helvetica', 12)
-a_high_var = create_checkbox(frame, "High", a_mutex, row)
+a_high_var = create_checkbox(frame, "High", "a high", a_mutex, row)
 a_mutex.append(a_high_var)
 
 row += 1
 label_font = ('Helvetica', 12)
-a_low_var = create_checkbox(frame, "Low", a_mutex, row)
+a_low_var = create_checkbox(frame, "Low", "a low", a_mutex, row)
 a_mutex.append(a_low_var)
 
 row += 1
 label_font = ('Helvetica', 12)
-a_off_var = create_checkbox(frame, "Off", a_mutex, row)
+a_off_var = create_checkbox(frame, "Off", "a off", a_mutex, row)
 a_mutex.append(a_off_var)
 
 
@@ -117,17 +160,17 @@ tk.Label(frame, text="Electrode Set 'b':", font=bold_font).grid(row=row, column=
 
 row += 1
 label_font = ('Helvetica', 12)
-b_high_var = create_checkbox(frame, "High", b_mutex, row)
+b_high_var = create_checkbox(frame, "High", "b high", b_mutex, row)
 b_mutex.append(b_high_var)
 
 row += 1
 label_font = ('Helvetica', 12)
-b_low_var = create_checkbox(frame, "Low", b_mutex, row)
+b_low_var = create_checkbox(frame, "Low", "b low", b_mutex, row)
 b_mutex.append(b_low_var)
 
 row += 1
 label_font = ('Helvetica', 12)
-b_off_var = create_checkbox(frame, "Off", b_mutex, row)
+b_off_var = create_checkbox(frame, "Off", "b off", b_mutex, row)
 b_mutex.append(b_off_var)
 
 
@@ -140,17 +183,17 @@ tk.Label(frame, text="Electrode Set 'c':", font=bold_font).grid(row=row, column=
 
 row += 1
 label_font = ('Helvetica', 12)
-c_high_var = create_checkbox(frame, "High", c_mutex, row)
+c_high_var = create_checkbox(frame, "High", "c high", c_mutex, row)
 c_mutex.append(c_high_var)
 
 row += 1
 label_font = ('Helvetica', 12)
-c_low_var = create_checkbox(frame, "Low", c_mutex, row)
+c_low_var = create_checkbox(frame, "Low", "c low", c_mutex, row)
 c_mutex.append(c_low_var)
 
 row += 1
 label_font = ('Helvetica', 12)
-c_off_var = create_checkbox(frame, "Off", c_mutex, row)
+c_off_var = create_checkbox(frame, "Off", "c off", c_mutex, row)
 c_mutex.append(c_off_var)
 
 
@@ -163,17 +206,17 @@ tk.Label(frame, text="Electrode Set 'd':", font=bold_font).grid(row=row, column=
 
 row += 1
 label_font = ('Helvetica', 12)
-d_high_var = create_checkbox(frame, "High", d_mutex, row)
+d_high_var = create_checkbox(frame, "High", "d high", d_mutex, row)
 d_mutex.append(d_high_var)
 
 row += 1
 label_font = ('Helvetica', 12)
-d_low_var = create_checkbox(frame, "Low", d_mutex, row)
+d_low_var = create_checkbox(frame, "Low", "d low", d_mutex, row)
 d_mutex.append(d_low_var)
 
 row += 1
 label_font = ('Helvetica', 12)
-d_off_var = create_checkbox(frame, "Off", d_mutex, row)
+d_off_var = create_checkbox(frame, "Off", "d off", d_mutex, row)
 d_mutex.append(d_off_var)
 
 
@@ -186,17 +229,17 @@ tk.Label(frame, text="Electrode Set 'e':", font=bold_font).grid(row=row, column=
 
 row += 1
 label_font = ('Helvetica', 12)
-e_high_var = create_checkbox(frame, "High", e_mutex, row)
+e_high_var = create_checkbox(frame, "High", "e high", e_mutex, row)
 e_mutex.append(e_high_var)
 
 row += 1
 label_font = ('Helvetica', 12)
-e_low_var = create_checkbox(frame, "Low", e_mutex, row)
+e_low_var = create_checkbox(frame, "Low", "e low", e_mutex, row)
 e_mutex.append(e_low_var)
 
 row += 1
 label_font = ('Helvetica', 12)
-e_off_var = create_checkbox(frame, "Off", e_mutex, row)
+e_off_var = create_checkbox(frame, "Off", "e off", e_mutex, row)
 e_mutex.append(e_off_var)
 
 
