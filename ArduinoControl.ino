@@ -1,7 +1,5 @@
-#include <serial>
-
 void setup() {
-  Serial.begin(9600);     // Sets up serial communication for user input
+  Serial.begin(9600);     // Sets up serial communication
   
   pinMode(22, OUTPUT);    // Sets the digital pin 22 as output
   pinMode(23, OUTPUT);    // Sets the digital pin 23 as output
@@ -16,7 +14,7 @@ void setup() {
 }
 
 void loop() {
-  Serial.println("\nEnter a sentence containing any number of compatible commands. To see a list of commands, please enter 'commands' without the quotations.");
+  Serial.println("\nSerial connection successful!");
   
   while (Serial.available() == 0) {
   // Only prompts user for input once between inputs
@@ -27,19 +25,6 @@ void loop() {
   Serial.println(input);
 
   
-// COMMANDs
-  if(input == "commands"){
-    Serial.println("\nThere are five (5) sets of controllable electrodes: a, b, c, d, e. Always begin your command with the electrode set you wish to control, or begin with 'all' to control all at once.");
-    Serial.println("The electrodes can be connected to ground via the 'low' command, or to voltage via the 'high' command. The electrodes can be grounded, then disconnected via the 'off' command.");
-    Serial.println("Ex.1) a high, b low, c off, d off, e high <enter>");
-    Serial.println("Ex.2) a high b high c low d off e high <enter>");
-    Serial.println("Ex.3) all off <enter> a low <enter>");
-    Serial.println("Ex.4) all off <enter>");
-    Serial.println("Note 1: No particular delimiter is necessary (see examples 1 and 2). \nNote 2: Incompatible commands cannot be entered together (see example 3).");
-    Serial.println("Please always end your session with the 'all off' command.");
-  }
-
-
 // ALLs
   if(input.indexOf("all high") > -1){
       // Turns on voltage for all segmented electrodes at once
