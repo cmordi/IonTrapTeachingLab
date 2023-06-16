@@ -60,12 +60,8 @@ def connect_arduino():
 def input_command(checkboxes, checkbox_names):
     '''Function to send serial input to Arduino'''
     global changes_made, is_connected, arduino
-    if changes_made:
-        if not is_connected:
-            connect_arduino()
-            if not is_connected:
-                print("Cannot send command. Serial connection not established.")
-                return
+    if changes_made and not is_connected:
+        connect_arduino()
 
         try:
             for checkbox_var, name in zip(checkboxes, checkbox_names):
