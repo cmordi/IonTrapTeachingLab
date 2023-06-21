@@ -19,7 +19,6 @@ pin_d_low = 25
 pin_e_high = 22
 pin_e_low = 23
 
-
 # Keep track of changes
 changes_made = False
 # Serial connection status
@@ -27,6 +26,17 @@ is_connected = False
 # Create Serial object for reading and writing
 arduino = None
 
+# Light indicator colors for changes
+light_off_color = "gray"
+light_red_color = "red"
+light_green_color = "green"
+
+def update_light_indicator():
+    '''Updates the color of the light indicator based on changes_made'''
+    if changes_made:
+        light_indicator.config(bg=light_red_color)
+    else:
+        light_indicator.config(bg=light_green_color)
 
 # Create a separate thread for reading from the serial port
 def read_serial():
@@ -42,8 +52,7 @@ serial_thread = threading.Thread(target=read_serial)
 serial_thread.daemon = True
 serial_thread.start()
 
-
-# Useful functions
+# Other useful functions
 def connect_arduino():
     '''Establishes a serial connection with the Arduino'''
     global is_connected, arduino
@@ -55,27 +64,29 @@ def connect_arduino():
         is_connected = True
         print("Serial connection established.")
     except serial.SerialException as e:
-        print("Serial port connection error:", e)
+        pass
+        #print("Serial port connection error:", e)
 
 def input_command(checkboxes, checkbox_names):
     '''Function to send serial input to Arduino'''
     global changes_made, is_connected, arduino
-    if changes_made and not is_connected:
-        connect_arduino()
-
+    if changes_made:
+        if not is_connected:    
+            connect_arduino()
         try:
             for checkbox_var, name in zip(checkboxes, checkbox_names):
                 if checkbox_var.get():
                     print(f"Sending command: {name}")
                     arduino.write(f'{name}'.encode())
             changes_made = False
+            update_apply_button_state()
+            update_light_indicator()
         except serial.SerialException:
             print("Serial port connection error.")
 
 def apply_changes():
     '''Applies the configuration of checkboxes at the time of clicking the button'''
     global changes_made
-    changes_made = True
     input_command(checkboxes, checkbox_names)
 
 def create_checkbox(window, text, name, mutually_exclusive_checkboxes, row):
@@ -96,15 +107,20 @@ def toggle_checkboxes(checkboxes, mutually_exclusive_checkboxes, current_checkbo
             if checkbox != current_checkbox:
                 checkbox.set(False)
 
+def update_apply_button_state():
+    '''Updates the state of the Apply button based on changes_made'''
+    if changes_made:
+        apply_button.config(state='normal')
+    else:
+        apply_button.config(state='disabled')
+
 checkboxes = []
 checkbox_names = []
-
 
 # Create a new tkinter window
 window = tk.Tk()
 frame = tk.Frame(window)
 frame.grid(row=0, column=0, padx=10, pady=10)
-
 
 # All Electrodes
 row = 0
@@ -122,7 +138,6 @@ all_low_var = create_checkbox(frame, "All Low", "all low", checkboxes, row)
 row += 1
 label_font = ('Helvetica', 12)
 all_off_var = create_checkbox(frame, "All Off", "all off", checkboxes, row)
-
 
 # Electrode Set 'a'
 a_mutex = [all_high_var, all_low_var, all_off_var]
@@ -146,7 +161,6 @@ label_font = ('Helvetica', 12)
 a_off_var = create_checkbox(frame, "Off", "a off", a_mutex, row)
 a_mutex.append(a_off_var)
 
-
 # Electrode Set 'b'
 b_mutex = [all_high_var, all_low_var, all_off_var]
 
@@ -168,7 +182,6 @@ row += 1
 label_font = ('Helvetica', 12)
 b_off_var = create_checkbox(frame, "Off", "b off", b_mutex, row)
 b_mutex.append(b_off_var)
-
 
 # Electrode Set 'c'
 c_mutex = [all_high_var, all_low_var, all_off_var]
@@ -192,7 +205,6 @@ label_font = ('Helvetica', 12)
 c_off_var = create_checkbox(frame, "Off", "c off", c_mutex, row)
 c_mutex.append(c_off_var)
 
-
 # Electrode Set 'd'
 d_mutex = [all_high_var, all_low_var, all_off_var]
 
@@ -214,7 +226,6 @@ row += 1
 label_font = ('Helvetica', 12)
 d_off_var = create_checkbox(frame, "Off", "d off", d_mutex, row)
 d_mutex.append(d_off_var)
-
 
 # Electrode Set 'e'
 e_mutex = [all_high_var, all_low_var, all_off_var]
@@ -238,12 +249,36 @@ label_font = ('Helvetica', 12)
 e_off_var = create_checkbox(frame, "Off", "e off", e_mutex, row)
 e_mutex.append(e_off_var)
 
-
-# Apply Button
+# Apply button
 row += 1
-apply_button = tk.Button(frame, text="Apply", command=apply_changes)
-apply_button.grid(row=row, column=2, pady=10)
+apply_button = tk.Button(frame, text="Apply", font=('Helvetica', 12), command=apply_changes, state='disabled')
+apply_button.grid(row=row, column=2, pady=20)
+
+# Light indicator for changes
+light_indicator = tk.Label(frame, bg=light_off_color, width=2)
+light_indicator.grid(row=row, column=3, padx=10)
 
 
-# Start tkinter main loop
+# Function to continuously check for changes
+def check_changes():
+    global changes_made
+    previous_state = [checkbox.get() for checkbox in checkboxes]
+    while True:
+        current_state = [checkbox.get() for checkbox in checkboxes]
+        if current_state != previous_state:
+            changes_made = True
+            update_apply_button_state()
+            update_light_indicator()
+            previous_state = current_state
+        time.sleep(0.1)
+
+
+changes_thread = threading.Thread(target=check_changes)
+changes_thread.daemon = True
+changes_thread.start()
+
+
+# Start the main loop
 window.mainloop()
+print('Window closed.')
+arduino.write('all off'.encode())
